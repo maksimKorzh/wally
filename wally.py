@@ -24,11 +24,11 @@ board = [
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 2, 2, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 1, 1, 2, 0, 0, 7,
+    7, 2, 2, 0, 0, 2, 2, 0, 0, 0, 7,
+    7, 1, 1, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 2, 2, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
 ]
@@ -77,16 +77,20 @@ def weffect():
         if piece == 7: continue
         if piece & BLACK:
             count(square, BLACK)
-            print('liberties:', liberties)
-            print('block:', block)
+            #print('liberties:', liberties)
+            #print('block:', block)
             print_board()
+            if liberties == 0:
+                for captured in block:
+                    board[captured] = 0
+            
             restore_board()
+            
 
 def main():
-    #color = WHITE
     color = BLACK
     while True:        
-        #print_board()
+        print_board()
         square_str = input('Your move: ')
         if square_str == '': continue
         _file = ord(square_str[0]) - ord('a') + 1
@@ -97,21 +101,5 @@ def main():
         weffect()
 
 main()
-
-
-'''
-count(82, BLACK)
-print('liberties:', liberties)
-print('block:', block)
-print_board()
-restore_board()
-
-#restore_board()
-count(80, BLACK)
-print('liberties:', liberties)
-print('block:', block)
-print_board()
-restore_board()
-'''
-
+#weffect()
 
