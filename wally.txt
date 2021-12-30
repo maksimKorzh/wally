@@ -1,6 +1,3 @@
-   WALLY pseudo code by Jonathan K. Millen
-taken from the Byte magazine from April, 1981
-
 COUNT(x, color) :
     IF x is not off the edge
     THEN

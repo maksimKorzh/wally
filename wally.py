@@ -33,9 +33,10 @@ board = [
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
 ]
 
+
 pieces = '.#o  bw +'
 liberties = 0
-
+block = []
 
 def print_board():
     for i in range(len(board)):
@@ -48,11 +49,11 @@ def print_board():
     print('\n\n    a b c d e f g h i\n')
 
 def count(square, color):
-    print('count')
     global liberties
     piece = board[square]
     if piece == 7: return
-    if piece and board[square] & color and (piece & 4) == 0:
+    if piece and piece & color and (piece & 4) == 0:
+        block.append(square)
         board[square] |= 4
         count(square - 11, color)
         count(square -1, color)
@@ -62,15 +63,55 @@ def count(square, color):
         board[square] |= 8
         liberties += 1
 
+def restore_board():
+    global liberties, block
+    liberties = 0
+    block = []
+    
+    for square in range(len(board)):
+        if board[square] != 7: board[square] &= 3
 
-color = BLACK
-while True:    
-    print_board()
-    square_str = input('Your move: ')
-    _file = ord(square_str[0]) - ord('a') + 1
-    _rank = 10 - (ord(square_str[1]) - ord('0'))
-    print(_rank)
-    square = _rank * 11 + _file
-    board[square] = color
-    color = 3 - color
+def weffect():
+    for square in range(len(board)):
+        piece = board[square]
+        if piece == 7: continue
+        if piece & BLACK:
+            count(square, BLACK)
+            print('liberties:', liberties)
+            print('block:', block)
+            print_board()
+            restore_board()
+
+def main():
+    #color = WHITE
+    color = BLACK
+    while True:        
+        #print_board()
+        square_str = input('Your move: ')
+        if square_str == '': continue
+        _file = ord(square_str[0]) - ord('a') + 1
+        _rank = 10 - (ord(square_str[1]) - ord('0'))
+        square = _rank * 11 + _file
+        board[square] = color
+        color = 3 - color
+        weffect()
+
+main()
+
+
+'''
+count(82, BLACK)
+print('liberties:', liberties)
+print('block:', block)
+print_board()
+restore_board()
+
+#restore_board()
+count(80, BLACK)
+print('liberties:', liberties)
+print('block:', block)
+print_board()
+restore_board()
+'''
+
 
