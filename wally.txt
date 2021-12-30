@@ -1,0 +1,74 @@
+   WALLY pseudo code by Jonathan K. Millen
+taken from the Byte magazine from April, 1981
+
+COUNT(x, color) :
+    IF x is not off the edge
+    THEN
+    IF there is a stone at x AND it is the given color AND it is not marked THEN
+        mark it
+        CALL COUNT(NORTH(x), color)
+        CALL COUNT(EAST(x) , color)
+        CALL COUNT(SOUTH(x) , color)
+        CALL COUNT(WEST(x), color)
+    ELSE IF there is no stone at x
+    THEN
+        mark the point as a liberty
+        increment the liberty count
+    END
+END
+
+MAIN :
+    place black handicap stones
+    LOOP
+        display the board
+        get white's move from keyboard
+        CALL WEFFECT for the effect of white's move
+        CALL BEFFECT to obtain a tentative black move
+        CALL PATS to check for a pattern match
+        place black stone
+    END
+
+WEFFECT :
+    FOR each point x with a black stone DO
+        CALL COUNT(x,black)
+        IF the group has no liberties THEN remove its stones
+        ELSE IF the group has at least one liberty THEN choose a liberty not on edge line
+        IF the group has 1 or 2 liberties THEN CALL EVAL for the chosen liberty
+    END
+END
+
+BEFFECT:
+    FOR each point x with a white stone DO
+        CALL COUNT(x,white)
+        IF the group has exactly 1 liberty THEN designate it as the black move remove the white stones EXIT
+        ELSE IF the group has 2 or more liberties THEN choose a liberty
+        CALL EVAL for the chosen liberty
+    END
+END
+
+EVAL(move, liberties):
+    GLOBAL (best-move, best-liberties)
+    IF liberties s best-liberties AND
+    LOOKAHEAD(move) ~ 2
+    THEN
+    best-move = move
+    best-liberties = liberties
+END
+
+LOOKAHEAD(move) :
+    place black stone at move
+    CALL COUNT(move,black)
+    remove black stone .
+    RETURN count of liberties
+
+PATS:
+    FOR each white stone DO
+        IF there is a pattern in the table
+        centered on that white stone
+        THEN
+        get suggested black move y
+        CALL EVAL(y,2)
+        EXIT
+    END
+END
+
