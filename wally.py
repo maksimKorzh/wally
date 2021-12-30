@@ -24,11 +24,11 @@ board = [
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 2, 2, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 1, 1, 2, 0, 0, 7,
-    7, 2, 2, 0, 0, 2, 2, 0, 0, 0, 7,
-    7, 1, 1, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 2, 2, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
 ]
@@ -77,15 +77,22 @@ def weffect():
         if piece == 7: continue
         if piece & BLACK:
             count(square, BLACK)
-            #print('liberties:', liberties)
-            #print('block:', block)
-            print_board()
             if liberties == 0:
                 for captured in block:
-                    board[captured] = 0
-            
+                    board[captured] = 0            
             restore_board()
             
+def beffect():
+    for square in range(len(board)):
+        piece = board[square]
+        if piece == 7: continue
+        if piece & WHITE:
+            count(square, WHITE)
+            if liberties == 0:
+                for captured in block:
+                    board[captured] = 0            
+            restore_board()
+
 
 def main():
     color = BLACK
@@ -99,7 +106,8 @@ def main():
         board[square] = color
         color = 3 - color
         weffect()
+        beffect()
 
 main()
-#weffect()
+
 
