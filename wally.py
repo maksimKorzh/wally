@@ -16,7 +16,7 @@
 #
 ###################################
 
-import random, sys
+import random
 
 BLACK = 1
 WHITE = 2
@@ -34,7 +34,6 @@ board = [
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
 ]
-
 
 pieces = '.#o  bw +'
 liberties = []
