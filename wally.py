@@ -16,7 +16,7 @@
 #
 ###################################
 
-import random
+import random, sys
 
 BLACK = 1
 WHITE = 2
@@ -134,9 +134,35 @@ def main():
             while board[random_square] != 0:
                 random_square = random.randrange(len(board))
             board[random_square] = BLACK
-main()
+#main()
 
-
+def gtp():
+    while True:
+        gui_command = input()
+        
+        if gui_command == 'name': print('= Wally\n')
+        elif gui_command == 'version': print('= 1.0\n')
+        elif gui_command == 'protocol_version': print('= 1\n')
+        elif gui_command == 'list_commands': print('= protocol_version\n')
+        elif gui_command == 'quit': sys.exit()
+        elif 'play' in gui_command:
+            square_str = gui_command.split()[-1]
+            _file = ord(square_str[0]) - ord('A') + 1
+            _rank = 10 - (ord(square_str[1]) - ord('0'))
+            square = _rank * 11 + _file
+            board[square] = BLACK if gui_command[1] == 'B' else WHITE
+            print('=\n')
+        elif 'genmove' in gui_command:
+            random_square = random.randrange(len(board))
+            while board[random_square] != 0:
+                random_square = random.randrange(len(board))
+            board[random_square] = BLACK
+            
+            
+            
+            print('= E4\n' )
+        else: print('=\n')
+gtp()
 
 
 
