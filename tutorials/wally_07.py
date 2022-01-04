@@ -34,10 +34,10 @@ board_9x9 = [
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 1, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 1, 1, 0, 0, 7,
-    7, 0, 0, 0, 0, 1, 1, 1, 0, 0, 7,
-    7, 0, 0, 0, 0, 1, 1, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
@@ -293,16 +293,45 @@ def clear_board():
     for square in range(len(board)):
         if board[square] != OFFBOARD: board[square] = 0
 
+# make move on board
+def set_stone(square, color):
+    # make move on board
+    board[square] = color
+    
+    # handle captures
+    captures(3 - color)
+
 # generate random move
 def make_random_move(color):
     # find empty random square
     random_square = random.randrange(len(board))
-    while board[random_square] != 0:
+    while board[random_square] != EMPTY:
         random_square = random.randrange(len(board))
     
-    # make move on board
-    board[random_square] = color
-    captures(3 - color)
+    # make move
+    set_stone(random_square, color)
+    
+    # count liberties
+    count(random_square, color)
+    
+    # suicide move
+    if len(liberties) == 0:
+        # restore board
+        restore_board()
+        
+        # take off the stone
+        board[random_square] = EMPTY
+        
+        # search for another move
+        try:
+            # return non suicide move
+            return make_random_move(color)
+        except:
+            # pass the move
+            return '' 
+    
+    # restore board
+    restore_board()
     
     # return the move
     return coords[random_square]
@@ -319,18 +348,28 @@ def play(command):
     row = (BOARD_RANGE - 1) - row_count
     square = row * BOARD_RANGE + col
     
-    # make move on board
-    board[square] = color
-    captures(3 - color)
+    # make GUI move
+    set_stone(square, color)
 
+# handle captures
 def captures(color):
-    # handle captures
+    # loop over the board squares
     for square in range(len(board)):
+        # init piece
         piece = board[square]
-        if piece == 7: continue
+        
+        # skip offboard squares
+        if piece == OFFBOARD: continue
+        
+        # if stone belongs to the given color
         if piece & color:
+            # count liberties
             count(square, color)
+            
+            # if no liberties left remove the stones
             if len(liberties) == 0: clear_block()
+            
+            # restore the board
             restore_board()
 
 # GTP communcation protocol
@@ -353,13 +392,9 @@ def gtp():
         elif 'quit' in command: sys.exit()
         else: print('=\n') # skip currently unsupported commands
         
-        
 
 # start GTP communication
 gtp()
-
-
-
 
 
 
