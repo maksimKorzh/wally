@@ -372,88 +372,6 @@ def captures(color):
             # restore the board
             restore_board()
 
-# edge line detection
-def detect_edge(square):
-    is_edge = 0
-    for d in [1, BOARD_RANGE, -1, -BOARD_RANGE]:
-        if board[square + d] == OFFBOARD:
-            return 1
-
-    return 0
-
-# evaluate liberty
-def eval(color):
-    best_count = 0
-    best_liberty = liberties[0]
-    for liberty in liberties:
-        board[liberty] = color
-        count(liberty, color)
-        if len(liberties) > best_count and not detect_edge(liberty):
-            best_liberty = liberty
-            best_count = len(liberties)
-        restore_board()
-        board[liberty] = EMPTY
-
-    return best_liberty
-    
-# generate move
-def genmove(color):
-    #######################################################################
-    #
-    #    AI logic (first defense, then attack)
-    #
-    # 1. If the group of the side to move has only one liberty
-    #    then save it by putting a stone there unless it's a board edge
-    #
-    # 2. If the group of the side to move has less than three liberties
-    #    then choose the the one resulting in more liberties
-    #
-    # 3. If opponent's group have only one liberty left
-    #    then capture
-    #
-    # 4. If opponent's group have more than one liberty
-    #    consider the move that would reduce the liberties
-    #
-    # 5. Match patterns to build strong shape, if found any
-    #    consider that instead of chasing the group
-    #
-    #######################################################################
-    
-    for square in range(len(board)):
-        piece = board[square]
-        
-        # save own group
-        if piece & color:
-            count(square, color)
-            if len(liberties) == 1:
-                target_square = liberties[0]                
-                if not detect_edge(target_square):
-                    set_stone(target_square, color)
-                    return coords[target_square]
-            
-            if len(liberties) == 2:
-                best_liberty = eval(color)
-                set_stone(best_liberty, color)
-                return coords[best_liberty]
-
-            restore_board()
-        
-        # capture opponent's group
-        if piece & (3 - color):
-            count(square, (3 - color))
-            if len(liberties) == 1:
-                target_square = liberties[0]
-                set_stone(target_square, color)
-                return coords[target_square]
-            
-            # chase group
-            if len(liberties) > 1:
-                pass
-            
-            restore_board()
-        
-    return make_random_move(color)
-
 # GTP communcation protocol
 def gtp():
     # main GTP loop
@@ -470,7 +388,7 @@ def gtp():
         elif 'clear_board' in command: clear_board(); print('=\n')
         elif 'showboard' in command: print('= '); print_board()
         elif 'play' in command: play(command); print('=\n')
-        elif 'genmove' in command: print('=', genmove(BLACK if command.split()[-1] == 'B' else WHITE) + '\n')
+        elif 'genmove' in command: print('=', make_random_move(BLACK if command.split()[-1] == 'B' else WHITE) + '\n')
         elif 'quit' in command: sys.exit()
         else: print('=\n') # skip currently unsupported commands
         

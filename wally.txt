@@ -1,3 +1,7 @@
+=================================================================================
+  WALLY pseuso code by Jonathan K. Millen from the Byte magazine (April, 1981)
+=================================================================================
+
 COUNT(x, color) :
     IF x is not off the edge
     THEN
