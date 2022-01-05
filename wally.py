@@ -5,6 +5,9 @@
 #
 ###################################
 
+from __future__ import print_function
+def eprint(*args, **kwargs): print(*args, file=sys.stderr, **kwargs)
+
 import sys
 import random
 
@@ -32,7 +35,7 @@ VERSION = '1.0'
 board_9x9 = [
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 2, 1, 2, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
@@ -340,6 +343,9 @@ def make_random_move(color):
 def play(command):
     # parse color
     color = BLACK if command.split()[1] == 'B' else WHITE
+
+    # handle GUI pass move
+    if command.split()[-1] == 'pass': return
     
     # parse square
     square_str = command.split()[-1]
@@ -401,11 +407,12 @@ def genmove(color):
     #
     #    AI logic (first defense, then attack)
     #
-    # 1. If the group of the side to move has only one liberty
+    # 1. If opponent's group have only one liberty left
+    #    then capture it
+    #
+    # 2. If the group of the side to move has only one liberty
     #    then save it by putting a stone there unless it's a board edge
     #
-    # 2. If opponent's group have only one liberty left
-    #    then capture it
     #
     # 3. If the group of the side to move has two liberties
     #    then choose the the one resulting in more liberties
@@ -420,6 +427,19 @@ def genmove(color):
     
     best_move = 0
     
+    # capture opponent's group
+    for square in range(len(board)):
+        piece = board[square]
+        if piece & (3 - color):
+            count(square, (3 - color))
+            if len(liberties) == 1:
+                target_square = liberties[0]
+                best_move = target_square
+                capture = 1
+                eprint('capture group move', coords[best_move])
+                break
+            restore_board()
+    
     # save own group if 1 liberty left
     for square in range(len(board)):
         piece = board[square]
@@ -429,20 +449,10 @@ def genmove(color):
                 target_square = liberties[0]                
                 if not detect_edge(target_square):
                     best_move = target_square
+                    eprint('save group move', coords[best_move])
                     break
             restore_board()
-    
-    # capture opponent's group
-    for square in range(len(board)):
-        piece = board[square]
-        if piece & (3 - color):
-            count(square, (3 - color))
-            if len(liberties) == 1:
-                target_square = liberties[0]
-                best_move = target_square
-                break
-            restore_board()
-    
+            
     # save own group if 2 liberties left
     for square in range(len(board)):
         piece = board[square]
@@ -451,28 +461,31 @@ def genmove(color):
             if len(liberties) == 2:
                 best_liberty = eval(color)
                 best_move = best_liberty
+                eprint('defend group move', coords[best_move])
                 break
             restore_board()
 
     # surround opponent's group
     for square in range(len(board)):
         piece = board[square]
-        if piece & (3 - color) and best_move == 0:
+        if piece & (3 - color):
             count(square, (3 - color))
-            if len(liberties) > 1:
+            if len(liberties) > 1 and best_move == 0:
                 best_liberty = eval(3 - color)
                 best_move = best_liberty
+                eprint('surround group move', coords[best_move])
                 break
             restore_board()
 
     # found best move
     if best_move:
+        set_stone(best_move, color)
         count(best_move, color)
         is_legal = len(liberties)
         restore_board()
-        if not is_legal: return make_random_move(color)
-        
-        set_stone(best_move, color)
+        if not is_legal:
+            board[best_move] = EMPTY
+            return make_random_move(color)
         return coords[best_move]
 
     # if starts with black
