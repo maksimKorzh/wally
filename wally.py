@@ -413,7 +413,6 @@ def genmove(color):
     # 2. If the group of the side to move has only one liberty
     #    then save it by putting a stone there unless it's a board edge
     #
-    #
     # 3. If the group of the side to move has two liberties
     #    then choose the the one resulting in more liberties
     #
@@ -426,6 +425,10 @@ def genmove(color):
     #######################################################################
     
     best_move = 0
+    capture = 0
+    save = 0
+    defend = 0
+    surround = 0
     
     # capture opponent's group
     for square in range(len(board)):
@@ -435,8 +438,7 @@ def genmove(color):
             if len(liberties) == 1:
                 target_square = liberties[0]
                 best_move = target_square
-                capture = 1
-                eprint('capture group move', coords[best_move])
+                capture = best_move
                 break
             restore_board()
     
@@ -449,7 +451,7 @@ def genmove(color):
                 target_square = liberties[0]                
                 if not detect_edge(target_square):
                     best_move = target_square
-                    eprint('save group move', coords[best_move])
+                    save = best_move
                     break
             restore_board()
             
@@ -461,7 +463,7 @@ def genmove(color):
             if len(liberties) == 2:
                 best_liberty = eval(color)
                 best_move = best_liberty
-                eprint('defend group move', coords[best_move])
+                defend = best_move
                 break
             restore_board()
 
@@ -470,15 +472,27 @@ def genmove(color):
         piece = board[square]
         if piece & (3 - color):
             count(square, (3 - color))
-            if len(liberties) > 1 and best_move == 0:
+            if len(liberties) > 1:
                 best_liberty = eval(3 - color)
                 best_move = best_liberty
-                eprint('surround group move', coords[best_move])
+                surround = best_move
                 break
             restore_board()
 
     # found best move
     if best_move:
+        eprint('capture:', coords[capture])
+        eprint('save:', coords[save])
+        eprint('defend:', coords[defend])
+        eprint('surround:', coords[surround])
+        
+        if not capture and not defend and not save: best_move = surround
+        if not capture and not save and defend: best_move = defend
+        if not capture and not defend and save: best_move = save
+        if capture: best_move = capture
+        
+        eprint('best_move:', coords[best_move])
+        
         set_stone(best_move, color)
         count(best_move, color)
         is_legal = len(liberties)
@@ -486,6 +500,7 @@ def genmove(color):
         if not is_legal:
             board[best_move] = EMPTY
             return make_random_move(color)
+        
         return coords[best_move]
 
     # if starts with black
