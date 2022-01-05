@@ -33,8 +33,8 @@ board_9x9 = [
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-    7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7,
+    7, 0, 0, 2, 1, 2, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
     7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
@@ -211,7 +211,7 @@ def print_board():
         print()
     
     # print notation
-    print(' ' + files[0:BOARD_RANGE*2] + '\n')
+    print(('' if len(board) == 121 else ' ') + files[0:BOARD_RANGE*2] + '\n')
 
 # set Go ban size
 def set_board_size(command):
@@ -418,45 +418,62 @@ def genmove(color):
     #
     #######################################################################
     
+    best_move = 0
+    
+    # save own group if 1 liberty left
     for square in range(len(board)):
         piece = board[square]
-        
-        # save own group if 1 liberty left
         if piece & color:
             count(square, color)
             if len(liberties) == 1:
                 target_square = liberties[0]                
                 if not detect_edge(target_square):
-                    set_stone(target_square, color)
-                    return coords[target_square]
+                    best_move = target_square
+                    break
             restore_board()
-
-        # capture opponent's group
+    
+    # capture opponent's group
+    for square in range(len(board)):
+        piece = board[square]
         if piece & (3 - color):
             count(square, (3 - color))
             if len(liberties) == 1:
                 target_square = liberties[0]
-                set_stone(target_square, color)
-                return coords[target_square]                        
+                best_move = target_square
+                break
             restore_board()
-
-        # save own group if 2 liberties left
+    
+    # save own group if 2 liberties left
+    for square in range(len(board)):
+        piece = board[square]
         if piece & color:
             count(square, color)
             if len(liberties) == 2:
                 best_liberty = eval(color)
-                set_stone(best_liberty, color)
-                return coords[best_liberty]
+                best_move = best_liberty
+                break
             restore_board()
 
-        # surround opponent's group
-        if piece & (3 - color):
+    # surround opponent's group
+    for square in range(len(board)):
+        piece = board[square]
+        if piece & (3 - color) and best_move == 0:
             count(square, (3 - color))
             if len(liberties) > 1:
                 best_liberty = eval(3 - color)
-                set_stone(best_liberty, color)
-                return coords[best_liberty]            
+                best_move = best_liberty
+                break
             restore_board()
+
+    # found best move
+    if best_move:
+        count(best_move, color)
+        is_legal = len(liberties)
+        restore_board()
+        if not is_legal: return make_random_move(color)
+        
+        set_stone(best_move, color)
+        return coords[best_move]
 
     # if starts with black
     return make_random_move(color)
