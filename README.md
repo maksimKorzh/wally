@@ -1,5 +1,7 @@
 # Wally
-Reconstruction of the Wally - simple GO program written by Jonathan K. Millen for KIM-1
+Reconstruction of the Wally - simple GO program written by Jonathan K. Millen for KIM-1<br>
+
+# Original article
 https://archive.org/details/byte-magazine-1981-04/page/n101/mode/2up
 
 # Tutorial series
