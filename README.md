@@ -3,7 +3,7 @@ Reconstruction of the Wally - simple GO program written by Jonathan K. Millen fo
 
 # How to run it
 Wally is a GTP engine that needs GUI to tun under,<br>
-tested with fantastic 1 file executable Sabaki GUI:<br>
+tested with fantastic cross-platform Sabaki GUI:<br>
 https://github.com/SabakiHQ/Sabaki
 
 # Original article
