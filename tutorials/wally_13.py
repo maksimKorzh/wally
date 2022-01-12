@@ -531,15 +531,6 @@ def genmove(color):
                 best_liberty = evaluate(3 - color)
                 best_move = best_liberty
                 surround = best_liberty
-                
-                # try move
-                set_stone(best_move, color)
-                count(best_move, color)
-                legal = len(liberties)
-                restore_board()
-                board[best_move] = EMPTY
-                if not legal: continue
-                break
             
             # restore board
             restore_board()
@@ -622,10 +613,9 @@ def genmove(color):
         
         # handle AI movo priorities
         if not capture and not defend and not save: best_move = surround
-        elif not capture and not save and defend: best_move = defend if random_action else surround
-        elif not capture and not defend and save: best_move = save
-        elif pattern: best_move = pattern
-        if save: best_move = save
+        if not capture and not save and defend: best_move = defend if random_action else surround
+        if not capture and not defend and save: best_move = save
+        if not capture and not save and pattern: best_move = pattern
         if capture: best_move = capture
         
         # make move
